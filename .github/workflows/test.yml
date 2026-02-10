@@ -25,21 +25,16 @@ jobs:
 
       - name: Sign APK
         run: |
-          # 必須ファイルチェック
           if [ ! -f testkey.x509.pem ] || [ ! -f testkey.pk8 ] || [ ! -f test.apk ]; then
             echo "ERROR: Required files missing (testkey.x509.pem, testkey.pk8, or test.apk)."
             ls -la
             exit 1
           fi
-
-          # APK署名（インストール可能）
           java -jar SignApk.jar \
             testkey.x509.pem \
             testkey.pk8 \
             test.apk \
             signed_test.apk
-
-          # 成功確認
           if [ -f signed_test.apk ]; then
             echo "Signing succeeded: signed_test.apk"
             ls -lh signed_test.apk
