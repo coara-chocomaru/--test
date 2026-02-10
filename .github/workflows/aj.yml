@@ -23,7 +23,7 @@ jobs:
 
       - name: Sign the ZIP
         run: |
-          java -jar signapk.jar -w testkey.x509.pem testkey.pk8 test.zip signed_test.zip
+          java -jar signapk.jar -w testkey.x509.pem testkey.pk8 test2.zip signed_test.zip
 
       - name: Upload signed ZIP as artifact
         uses: actions/upload-artifact@v4
