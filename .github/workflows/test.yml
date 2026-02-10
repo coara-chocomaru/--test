@@ -1,0 +1,55 @@
+name: "Sign OTA ZIP"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  sign:
+    name: Sign OTA ZIP
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Download SignApk.jar
+        run: |
+          curl -fsSL -o SignApk.jar https://raw.githubusercontent.com/ndasjowo/SignApk/master/SignApk.jar
+          ls -la
+
+      - name: Sign APK
+        run: |
+          # 必須ファイルチェック
+          if [ ! -f testkey.x509.pem ] || [ ! -f testkey.pk8 ] || [ ! -f test.apk ]; then
+            echo "ERROR: Required files missing (testkey.x509.pem, testkey.pk8, or test.apk)."
+            ls -la
+            exit 1
+          fi
+
+          # APK署名（インストール可能）
+          java -jar SignApk.jar \
+            testkey.x509.pem \
+            testkey.pk8 \
+            test.apk \
+            signed_test.apk
+
+          # 成功確認
+          if [ -f signed_test.apk ]; then
+            echo "Signing succeeded: signed_test.apk"
+            ls -lh signed_test.apk
+          else
+            echo "Signing failed: signed_test.apk not found"
+            exit 1
+          fi
+
+      - name: Upload signed APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-apk
+          path: signed_test.apk
