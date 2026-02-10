@@ -1,7 +1,7 @@
 name: Sign OTA ZIP
 
 on:
-  workflow_dispatch:  # 手動トリガー（GitHub UIから実行）
+  workflow_dispatch:  # 手動トリガー
 
 jobs:
   sign:
@@ -17,9 +17,9 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Download signapk.jar (from Android source mirror)
+      - name: Download signapk.jar
         run: |
-          curl -o signapk.jar https://raw.githubusercontent.com/LineageOS/android_build/Lineage-21.0/tools/releasetools/signapk.jar  # 例: LineageOSミラーから（適宜最新版に）
+          curl -o signapk.jar https://raw.githubusercontent.com/ndasjowo/SignApk/master/SignApk.jar
 
       - name: Sign the ZIP
         run: |
