@@ -1,0 +1,32 @@
+name: Sign OTA ZIP
+
+on:
+  workflow_dispatch:  # 手動トリガー（GitHub UIから実行）
+
+jobs:
+  sign:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Download signapk.jar (from Android source mirror)
+        run: |
+          curl -o signapk.jar https://raw.githubusercontent.com/LineageOS/android_build/Lineage-21.0/tools/releasetools/signapk.jar  # 例: LineageOSミラーから（適宜最新版に）
+
+      - name: Sign the ZIP
+        run: |
+          java -jar signapk.jar -w testkey.x509.pem testkey.pk8 test.zip signed_test.zip
+
+      - name: Upload signed ZIP as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-ota-zip
+          path: signed_test.zip
