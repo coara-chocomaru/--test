@@ -1,31 +1,45 @@
-name: Sign OTA ZIP
+name: "Sign OTA ZIP"
 
 on:
-  workflow_dispatch:  # 手動トリガー
+  workflow_dispatch:
 
 jobs:
   sign:
+    name: Sign OTA ZIP
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Java
+      - name: Set up Java 17 (Temurin)
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Download signapk.jar
+      - name: Download SignApk.jar
         run: |
-          curl -o signapk.jar https://raw.githubusercontent.com/ndasjowo/SignApk/master/SignApk.jar
+          curl -fsSL -o SignApk.jar https://raw.githubusercontent.com/ndasjowo/SignApk/master/SignApk.jar
+          ls -la
 
-      - name: Sign the ZIP
+      - name: Sign OTA ZIP
         run: |
-          java -jar signapk.jar -w testkey.x509.pem testkey.pk8 test2.zip signed_test.zip
+          if [ ! -f testkey.x509.pem ] || [ ! -f testkey.pk8 ] || [ ! -f test2.zip ]; then
+            echo "ERROR: Required files missing (testkey.x509.pem, testkey.pk8, or test2.zip)."
+            ls -la
+            exit 1
+          fi
+          java -jar SignApk.jar -w testkey.x509.pem testkey.pk8 test2.zip signed_test.zip
+          if [ -f signed_test.zip ]; then
+            echo "Signing succeeded: signed_test.zip"
+            ls -lh signed_test.zip
+          else
+            echo "Signing failed: signed_test.zip not found"
+            exit 1
+          fi
 
-      - name: Upload signed ZIP as artifact
+      - name: Upload signed OTA ZIP
         uses: actions/upload-artifact@v4
         with:
           name: signed-ota-zip
